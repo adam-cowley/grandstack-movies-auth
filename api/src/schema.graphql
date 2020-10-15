@@ -1,0 +1,158 @@
+
+# These type definitions have been generated from your Neo4j database.
+
+# Here are some Neo4j specific scalars that you can use to map to native Neo4j types:
+scalar Point
+scalar Date
+scalar DateTime
+scalar Long
+
+# Edit these GraphQL type definitions below to change your GraphQL API
+# You can add custom logic defined with Cypher using the @cypher GraphQL schema directive
+# You can refer to the docs at https://grandstack.io
+type Genre {
+   _id: Long!
+   id: Int!
+   name: String!
+   movies: [Movie] @relation(name: "IN_GENRE", direction: IN)
+   packages: [Package] @relation(name: "PROVIDES_ACCESS_TO", direction: IN)
+}
+
+type User {
+   _id: Long!
+   dateOfBirth: Date
+   email: String
+   firstName: String
+   id: String
+   lastName: String
+   name: String
+   password: String
+   userId: String
+   rated: [Movie] @relation(name: "RATED", direction: OUT)
+   RATED_rel: [RATED]
+   purchased: [Subscription] @relation(name: "PURCHASED", direction: OUT)
+}
+
+type Director_Person {
+   _id: Long!
+   bio: String
+   born: Date
+   bornIn: String
+   died: Date
+   imdbId: String
+   name: String!
+   poster: String
+   tmdbId: String!
+   url: String!
+   acted_in: [Movie] @relation(name: "ACTED_IN", direction: OUT)
+   directed: [Movie] @relation(name: "DIRECTED", direction: OUT)
+}
+
+type Actor_Person {
+   _id: Long!
+   bio: String
+   born: Date
+   bornIn: String
+   died: Date
+   imdbId: String
+   name: String!
+   poster: String
+   tmdbId: String!
+   url: String!
+   acted_in: [Movie] @relation(name: "ACTED_IN", direction: OUT)
+   directed: [Movie] @relation(name: "DIRECTED", direction: OUT)
+}
+
+type Actor_Director_Person {
+   _id: Long!
+   bio: String
+   born: Date
+   bornIn: String
+   died: Date
+   imdbId: String
+   name: String!
+   poster: String
+   tmdbId: String!
+   url: String!
+   acted_in: [Movie] @relation(name: "ACTED_IN", direction: OUT)
+   directed: [Movie] @relation(name: "DIRECTED", direction: OUT)
+}
+
+type Package {
+   _id: Long!
+   duration: String!
+   id: Int!
+   name: String!
+   price: Float!
+   provides_access_to: [Genre] @relation(name: "PROVIDES_ACCESS_TO", direction: OUT)
+   subscriptions: [Subscription] @relation(name: "FOR_PACKAGE", direction: IN)
+}
+
+type Subscription {
+   _id: Long!
+   expiresAt: DateTime!
+   id: String!
+   for_package: [Package] @relation(name: "FOR_PACKAGE", direction: OUT)
+   users: [User] @relation(name: "PURCHASED", direction: IN)
+}
+
+type Movie  @isAuthenticated {
+   _id: Long!
+   budget: Int
+   countries: [String]
+   id: String!
+   imdbId: String!
+   imdbRating: Float
+   imdbVotes: Int
+   languages: [String]
+   movieId: String!
+   plot: String
+   popularity: Float
+   poster: String
+   release_date: Date
+   released: String
+   revenue: Int
+   runtime: Int
+   title: String!
+   tmdbId: String
+   updatedAt: DateTime
+   url: String
+   year: Int
+   in_genre: [Genre] @relation(name: "IN_GENRE", direction: OUT)
+   users_rated: [User] @relation(name: "RATED", direction: IN)
+   actorCount: Int @cypher(statement: "RETURN size((this)-[:ACTED_IN]-())")
+   actorsOver50: [Actor_Person] @cypher(statement: "MATCH (this)<-[:ACTED_IN]-(a) WHERE a.born < date() - duration('P50Y') RETURN a")
+}
+
+
+type RATED @relation(name: "RATED") {
+  from: User!
+  to: Movie!
+  rating: Float!
+  timestamp: Int!
+}
+
+type User {
+   id: ID!
+   username: String!
+   password: String!
+}
+
+type Mutation {
+   Register (
+      username: String
+      password: String
+   ): JwtToken
+
+   Login (
+      username: String
+      password: String
+   ): JwtToken
+}
+
+
+type JwtToken {
+   token: String
+}
+
+
